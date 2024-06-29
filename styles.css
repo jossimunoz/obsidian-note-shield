@@ -1,8 +1,16 @@
-/*
+.noteshield-note-header {
+	display: flex;
+	background: #1abc9c;
+	color: #fff;
+	text-align: center;
+	padding: 0.5em;
+	justify-content: center;
+	margin-bottom: 0.5em;
+	align-items: center;
+}
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
-
-If your plugin does not need CSS, delete this file.
-
-*/
+.noteshield-note-header span {
+	margin-right: 0.5em;
+	font-size: 01em;
+	text-transform: uppercase;
+}

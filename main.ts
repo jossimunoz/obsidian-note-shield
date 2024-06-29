@@ -1,134 +1,202 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { Notice, Plugin, TFolder } from "obsidian";
+import { NoteShieldSettingTab } from "./setting";
+import { NoteShieldPGPView, VIEW_TYPE_PGP_FILE_CONTENT } from "./views/pgp";
+import { MemoryStorage } from "./services/storage";
+import { OpenPGPHandler } from "./services/openpgp";
 
-// Remember to rename these classes and interfaces!
+export interface INoteShieldSettings {}
 
-interface MyPluginSettings {
-	mySetting: string;
+const DEFAULT_SETTINGS: INoteShieldSettings = {};
+
+export interface KeyInfo {
+	id: string;
+	userId: string;
+	armoredPublicKey: string;
+	armoredPrivateKey?: string;
+	isDecrypted?: boolean;
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
-}
+export default class NoteShieldPlugin extends Plugin {
+	settings: INoteShieldSettings;
+	configFilePath: string;
+	storage = new MemoryStorage();
+	keys: KeyInfo[] = [];
 
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
-
-	async onload() {
+	async onload(): Promise<void> {
 		await this.loadSettings();
 
-		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
-			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
-		});
-		// Perform additional things with the ribbon
-		ribbonIconEl.addClass('my-plugin-ribbon-class');
+		this.addSettingTab(new NoteShieldSettingTab(this.app, this));
 
-		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Status Bar Text');
+		// Register PGPFileView for the plugin
+		this.registerView(
+			VIEW_TYPE_PGP_FILE_CONTENT,
+			(leaf) => new NoteShieldPGPView(leaf, this)
+		);
 
-		// This adds a simple command that can be triggered anywhere
-		this.addCommand({
-			id: 'open-sample-modal-simple',
-			name: 'Open sample modal (simple)',
-			callback: () => {
-				new SampleModal(this.app).open();
-			}
-		});
-		// This adds an editor command that can perform some operation on the current editor instance
-		this.addCommand({
-			id: 'sample-editor-command',
-			name: 'Sample editor command',
-			editorCallback: (editor: Editor, view: MarkdownView) => {
-				console.log(editor.getSelection());
-				editor.replaceSelection('Sample Editor Command');
-			}
-		});
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
-		this.addCommand({
-			id: 'open-sample-modal-complex',
-			name: 'Open sample modal (complex)',
-			checkCallback: (checking: boolean) => {
-				// Conditions to check
-				const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
-				if (markdownView) {
-					// If checking is true, we're simply "checking" if the command can be run.
-					// If checking is false, then we want to actually perform the operation.
-					if (!checking) {
-						new SampleModal(this.app).open();
-					}
+		// Register .pgp file extension with the view type
+		this.registerExtensions(["pgp"], VIEW_TYPE_PGP_FILE_CONTENT);
 
-					// This command will only show up in Command Palette when the check function returns true
-					return true;
+		// Add ribbon icon to create a new PGP note
+		this.addRibbonIcon("file-key-2", "Create PGP Note", async () => {
+			await this.createPGPNote();
+		});
+
+		// Add context menu option to create a new PGP note
+		this.registerEvent(
+			this.app.workspace.on("file-menu", (menu, file, source, leaf) => {
+				if (file instanceof TFolder) {
+					menu.addItem((item) => {
+						item.setTitle("New PGP Note");
+						item.onClick(async () => {
+							await this.createPGPNote(file.path);
+						});
+					});
 				}
-			}
-		});
-
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
-
-		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			console.log('click', evt);
-		});
-
-		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
-	}
-
-	onunload() {
-
+			})
+		);
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		const vault = this.app.vault;
+		const keyFolderExist = await vault.adapter.exists(".pgp");
+		if (keyFolderExist) {
+			const { files } = await vault.adapter.list(".pgp");
+
+			for await (const filepath of files) {
+				const armoredKey = await vault.adapter.read(filepath);
+				const encryption = new OpenPGPHandler(armoredKey);
+				await encryption.init();
+				const keyId = encryption.getId();
+				const userId = encryption.getUserId();
+				const isPrivateKey = encryption.isPrivateKey();
+				const isDecrypted = isPrivateKey
+					? await encryption.isDecrypted()
+					: false;
+				const index = this.keys.findIndex((key) => key.id === keyId);
+				if (index !== -1) {
+					if (!this.keys[index].armoredPrivateKey && isPrivateKey) {
+						this.keys[index].armoredPrivateKey = armoredKey;
+						this.keys[index].isDecrypted = isDecrypted;
+						this.keys[index].userId = userId;
+					}
+
+					if (!this.keys[index].armoredPublicKey && !isPrivateKey) {
+						this.keys[index].armoredPublicKey = armoredKey;
+						this.keys[index].userId = userId;
+					}
+				} else {
+					if (isPrivateKey) {
+						this.keys.push({
+							id: keyId,
+							armoredPrivateKey: armoredKey,
+							armoredPublicKey: encryption.getPublicArmoredKey(),
+							isDecrypted: isDecrypted,
+							userId: userId,
+						});
+					} else {
+						this.keys.push({
+							id: keyId,
+							armoredPublicKey: armoredKey,
+							userId: userId,
+						});
+					}
+				}
+			}
+		}
+		this.configFilePath = `${vault.configDir}/pgp-encrypt-settings.json`;
+		try {
+			const isConfigFile = await vault.adapter.exists(
+				this.configFilePath
+			);
+
+			if (!isConfigFile) {
+				this.settings = { ...DEFAULT_SETTINGS };
+				await vault.adapter.write(
+					this.configFilePath,
+					JSON.stringify(this.settings, null, 2)
+				);
+			} else {
+				const data = await vault.adapter.read(this.configFilePath);
+				this.settings = JSON.parse(data);
+			}
+		} catch (error) {
+			this.settings = { ...DEFAULT_SETTINGS };
+		}
 	}
 
 	async saveSettings() {
-		await this.saveData(this.settings);
-	}
-}
-
-class SampleModal extends Modal {
-	constructor(app: App) {
-		super(app);
+		const data = JSON.stringify(this.settings, null, 2);
+		await this.app.vault.adapter.write(this.configFilePath, data);
 	}
 
-	onOpen() {
-		const {contentEl} = this;
-		contentEl.setText('Woah!');
+	async saveKeys({
+		privateKey,
+		publicKey,
+	}: {
+		privateKey?: string;
+		publicKey: string;
+	}) {
+		try {
+			const vault = this.app.vault;
+			const keyFolderExist = await vault.adapter.exists(".pgp");
+			if (!keyFolderExist) {
+				await vault.createFolder(".pgp");
+			}
+
+			const handler = new OpenPGPHandler(publicKey);
+			await handler.init();
+			const keyId = handler.getId();
+			const isPrivateKey = handler.isPrivateKey();
+			const filename = `${keyId}_${
+				isPrivateKey ? "_private" : "_public"
+			}.asc`;
+
+			const path = `.pgp/${filename}`;
+
+			vault.adapter.write(path, publicKey);
+
+			if (privateKey) {
+				const handler = new OpenPGPHandler(privateKey);
+				await handler.init();
+				const keyId = handler.getId();
+				const isPrivateKey = handler.isPrivateKey();
+
+				if (!isPrivateKey) {
+					throw new Error("The provided key is not a private key.");
+				}
+
+				const filename = `${keyId}_${
+					isPrivateKey ? "_private" : "_public"
+				}.asc`;
+
+				const path = `.pgp/${filename}`;
+
+				vault.adapter.write(path, privateKey);
+			}
+
+			new Notice("Saving keys");
+		} catch (error) {
+			new Notice("An error occurred: " + error.message);
+		}
 	}
 
-	onClose() {
-		const {contentEl} = this;
-		contentEl.empty();
-	}
-}
+	async createPGPNote(path?: string) {
+		const currentDate = new Date();
+		const year = currentDate.getFullYear();
+		const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+		const day = String(currentDate.getDate()).padStart(2, "0");
+		const hours = String(currentDate.getHours()).padStart(2, "0");
+		const minutes = String(currentDate.getMinutes()).padStart(2, "0");
+		const seconds = String(currentDate.getSeconds()).padStart(2, "0");
 
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
+		const formattedDate = `${year}-${month}-${day} ${hours}${minutes}${seconds}`;
 
-	constructor(app: App, plugin: MyPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
+		const file = await this.app.vault.create(
+			(path ?? "") + `/${formattedDate}.pgp`,
+			""
+		);
 
-	display(): void {
-		const {containerEl} = this;
-
-		containerEl.empty();
-
-		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
+		const leaf = this.app.workspace.getLeaf();
+		await leaf.openFile(file);
 	}
 }

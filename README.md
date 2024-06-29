@@ -1,96 +1,41 @@
-# Obsidian Sample Plugin
+# Obsidian Note Shield Plugin
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+The Obsidian Note Shield plugin is a powerful tool that enhances the security and privacy of your Obsidian notes. With this plugin, you can encrypt and password-protect your sensitive notes, ensuring that only authorized individuals can access them.
 
-This project uses Typescript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in Typescript Definition format, which contains TSDoc comments describing what it does.
 
-**Note:** The Obsidian API is still in early alpha and is subject to change at any time!
+## Features
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open Sample Modal" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
+- **Note Encryption**: Encrypt your notes using strong encryption algorithms to keep them secure.
+- **Passphrase Protection**: Secure your private key with a passphrase, adding an extra layer of security.
+- **Selective Encryption**: Choose which notes to encrypt, giving you control over which ones require additional protection.
+- **Easy Decryption**: Decrypt your notes effortlessly whenever you need to access them.
+- **Intuitive Interface**: The plugin provides a user-friendly interface for managing encrypted notes.
 
-## First time developing plugins?
+## Installation
 
-Quick starting guide for new plugin devs:
+1. Open your Obsidian vault.
+2. Go to the "Community Plugins" tab in the settings.
+3. Search for "Note Shield" and click "Install" to add the plugin to your vault.
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+## Usage
 
-## Releasing new releases
+1. **Initial Setup**:
+    - Once installed, go to **Settings > Community Plugins > Note Shield**.
+    - Create a private key to encrypt your notes.
+    - You can also add existing private and public keys.
+2. **Encrypting Notes**:
+    - Ensure you have public keys for encryption and private keys for decryption.
+    - In Obsidian, use the button on the left sidebar to create a quick encrypted note.
+    - Select the key you want to use for that note.
+3. **Creating Encrypted Notes in Folders**:
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+    - Right-click on a folder and select the option to create a note within that folder.
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
+4. **Decrypting Notes**:
+    - To decrypt a note, select the encrypted note and use the corresponding private key.
 
-## Adding your plugin to the community plugin list
+Please note that if you forget the password for an encrypted note, it cannot be recovered. Make sure to keep your passwords safe and secure.
 
-- Check https://github.com/obsidianmd/obsidian-releases/blob/master/plugin-review.md
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
+## Feedback and Support
 
-## How to use
-
-- Clone this repo.
-- Make sure your NodeJS is at least v16 (`node --version`).
-- `npm i` or `yarn` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
-
-## Manually installing the plugin
-
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
-
-## Improve code quality with eslint (optional)
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- To use eslint with this project, make sure to install eslint from terminal:
-  - `npm install -g eslint`
-- To use eslint to analyze this project use this command:
-  - `eslint main.ts`
-  - eslint will then create a report with suggestions for code improvement by file and line number.
-- If your source code is in a folder, such as `src`, you can use eslint with this command to analyze all files in that folder:
-  - `eslint .\src\`
-
-## Funding URL
-
-You can include funding URLs where people who use your plugin can financially support it.
-
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
-
-```json
-{
-    "fundingUrl": "https://buymeacoffee.com"
-}
-```
-
-If you have multiple URLs, you can also do:
-
-```json
-{
-    "fundingUrl": {
-        "Buy Me a Coffee": "https://buymeacoffee.com",
-        "GitHub Sponsor": "https://github.com/sponsors",
-        "Patreon": "https://www.patreon.com/"
-    }
-}
-```
-
-## API Documentation
-
-See https://github.com/obsidianmd/obsidian-api
+If you have any questions, feedback, or need assistance with the Obsidian Note Shield plugin, please visit the [plugin's GitHub repository](https://github.com/jossimunoz/obsidian-note-shield) for more information.
