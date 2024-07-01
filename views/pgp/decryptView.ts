@@ -15,6 +15,9 @@ const decryptView = async (view: NoteShieldPGPView, container: HTMLElement) => {
 		(key) => key.armoredPrivateKey
 	);
 
+
+	await view.plugin.loadKeys();
+
 	// Display the title and description.
 	container.createEl("h4", { text: `🔐 ${title}` });
 	container.createEl("p", { text: `This note is encrypted with PGP` });

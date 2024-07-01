@@ -10,6 +10,9 @@ const newNoteView = async (view: NoteShieldPGPView, container: HTMLElement) => {
 	// Ensure the file is defined before proceeding
 	if (!view.file) throw new Error("File is not defined");
 
+
+	await view.plugin.loadKeys();
+
 	// Create a heading and display the path of the new note
 	container.createEl("h2", { text: `New PGP Note` });
 	container.createEl("p", { text: `${view.file.path}` });
