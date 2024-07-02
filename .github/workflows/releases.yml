@@ -6,7 +6,7 @@ on:
             - "*"
 
 env:
-    PLUGIN_NAME: obsidian-note-shield
+    PLUGIN_NAME: note-shield
 
 permissions:
     contents: write
