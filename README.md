@@ -2,7 +2,6 @@
 
 The Obsidian Note Shield plugin is a powerful tool that enhances the security and privacy of your Obsidian notes. With this plugin, you can encrypt and password-protect your sensitive notes, ensuring that only authorized individuals can access them.
 
-
 ## Features
 
 - **Note Encryption**: Encrypt your notes using strong encryption algorithms to keep them secure.
@@ -10,6 +9,18 @@ The Obsidian Note Shield plugin is a powerful tool that enhances the security an
 - **Selective Encryption**: Choose which notes to encrypt, giving you control over which ones require additional protection.
 - **Easy Decryption**: Decrypt your notes effortlessly whenever you need to access them.
 - **Intuitive Interface**: The plugin provides a user-friendly interface for managing encrypted notes.
+
+
+### Generate a Private Key
+![Generate a Private Key](/images/generate_keys.gif)
+
+### Encrypt a note
+![encrypt a note](/images/encrypt.gif)
+
+### Copy encrypted message to clipboard
+![Copy encrypted message to clipboard](/images/copy_encrypted_message.gif)
+
+
 
 ## Installation
 
