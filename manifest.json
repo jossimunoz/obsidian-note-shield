@@ -1,8 +1,10 @@
 {
-	"id": "obsidian-note-shield",
+	"id": "note-shield",
 	"name": "Note Shield",
 	"version": "1.0.0",
-	"minAppVersion": "0.15.0",
+	"minAppVersion": "1.4.5",
+	"author": "Jossi Muñoz",
+	"authorUrl": "https://github.com/jossimunoz",
 	"description": "Protect your notes with OpenPGP.",
-	"isDesktopOnly": false
+	"isDesktopOnly": true
 }
