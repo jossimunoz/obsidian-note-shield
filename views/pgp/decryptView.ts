@@ -15,7 +15,6 @@ const decryptView = async (view: NoteShieldPGPView, container: HTMLElement) => {
 		(key) => key.armoredPrivateKey
 	);
 
-
 	await view.plugin.loadKeys();
 
 	// Display the title and description.
@@ -51,7 +50,7 @@ const decryptView = async (view: NoteShieldPGPView, container: HTMLElement) => {
 			view.viewMode = NoteShieldPGPViewModeEnum.SOURCE;
 			view.setView(ViewTypeEnum.EDIT_NOTE);
 		} catch (error) {
-            console.error(error);
+			console.error(error);
 			new Notice(error.message);
 		}
 
@@ -100,9 +99,10 @@ const decryptView = async (view: NoteShieldPGPView, container: HTMLElement) => {
 	// Hidden file input for uploading a private key.
 	form.createEl("input", {
 		type: "file",
+
+		cls: "noteshield-input-external-pk",
 		attr: {
 			id: "file-input",
-			style: "display: none;",
 		},
 	}).addEventListener("change", async function (event) {
 		if (this.files) {

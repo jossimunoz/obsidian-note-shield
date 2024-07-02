@@ -1,6 +1,9 @@
 import * as openpgp from "openpgp";
 
-export const algorithmList = [
+export const algorithmList: Array<{
+	value: Algorithm;
+	display: string;
+}> = [
 	{ value: "RSA-2048", display: "RSA-2048 (Standard Security Level)" },
 	{ value: "RSA-3072", display: "RSA-3072 (High Security Level)" },
 	{ value: "RSA-4096", display: "RSA-4096 (Very High Security Level)" },
@@ -27,7 +30,7 @@ export const algorithmList = [
 	},
 ];
 
-type Algorithm =
+export type Algorithm =
 	| "RSA-2048"
 	| "RSA-3072"
 	| "RSA-4096"
@@ -85,7 +88,7 @@ const getAlgorithm = (
 };
 
 interface generateKeyProps {
-	algorithm: string;
+	algorithm: Algorithm;
 	email: string;
 	name: string;
 	passphrase: string | null;
@@ -117,7 +120,7 @@ export class OpenPGPHandler {
 			passphrase: passphrase ?? undefined,
 			format: "armored",
 			keyExpirationTime: Number(expire),
-			...getAlgorithm(algorithm as any),
+			...getAlgorithm(algorithm),
 		});
 
 		this.armoredKey = privateKey;

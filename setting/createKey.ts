@@ -1,10 +1,10 @@
 import { Notice, Setting } from "obsidian";
 import { NoteShieldSettingTab } from ".";
-import { algorithmList } from "services/openpgp";
+import { algorithmList, Algorithm } from "services/openpgp";
 import { OpenPGPHandler } from "services/openpgp";
 
 interface CreateKeyData {
-	algorithm: string;
+	algorithm: Algorithm;
 	passphrase: null | string;
 	expire: string;
 	email: string;
@@ -32,7 +32,7 @@ const createKey = (setting: NoteShieldSettingTab, containerEl: HTMLElement) => {
 
 			dp.setValue(data.algorithm);
 
-			dp.onChange((value) => {
+			dp.onChange((value: Algorithm) => {
 				data.algorithm = value;
 			});
 		});

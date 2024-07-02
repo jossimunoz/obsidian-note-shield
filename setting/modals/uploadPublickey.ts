@@ -52,8 +52,7 @@ export class UploadPublicKeyModal extends Modal {
 		const textarea = new TextAreaComponent(form);
 		textarea.inputEl.name = "publickey";
 		textarea.setPlaceholder("Paste your public key here");
-		textarea.inputEl.style.width = "100%";
-		textarea.inputEl.style.height = "200px";
+		textarea.inputEl.addClass("noteshield-settings-textarea-key");
 
 		new Setting(form)
 			.addButton((button) => {

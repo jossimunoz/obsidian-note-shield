@@ -88,6 +88,7 @@ const newNoteView = async (view: NoteShieldPGPView, container: HTMLElement) => {
 
 			// Handle deletion of the current note
 			button.onClick(async () => {
+				
 				await view.file?.vault.delete(view.file);
 			});
 		})
