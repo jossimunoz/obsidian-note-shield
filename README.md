@@ -50,3 +50,9 @@ Please note that if you forget the password for an encrypted note, it cannot be 
 ## Feedback and Support
 
 If you have any questions, feedback, or need assistance with the Obsidian Note Shield plugin, please visit the [plugin's GitHub repository](https://github.com/jossimunoz/obsidian-note-shield) for more information.
+
+
+## Credits
+
+- Special thanks to the developers of [OpenPGP.js](https://github.com/openpgpjs/openpgpjs) for their excellent library, which has been instrumental in this project. 
+- Additionally, I would like to acknowledge [Tejado](https://github.com/tejado) for the inspiration provided by their [obsidian-gpgCrypt plugin](https://github.com/tejado/obsidian-gpgCrypt). Their work has been a significant influence on the development of this project.
